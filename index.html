@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countries of the world</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dark-mode">
+  <div id="application">
+    <header>
+      <h3>Where in the World?</h3>
+      <div>
+        <div class="switch">
+          <label for="switch-dark-mode">☾ Dark mode</label>
+          <input type="checkbox" name="" id="switch-dark-mode">
+        </div>
+      </div>
+    </header>
+    <main>
+      <nav>
+        <section id="search">
+          <label for="search-input">🔍</label>
+          <input type="search" id="search-input" placeholder="Search for a country...">
+        </section>
+  
+        <section id="filter-region">
+          <select name="region" id="region" v-model="selectedRegion">
+            <option v-for="region in regions">{{region}}</option>
+          </select>
+        </section>
+      </nav>
+
+      <section id="countries-cards">
+        <div class="card" v-for="country in countries_arr">
+          <div class="flag">
+            <img v-bind:src="country.flag" alt="{{country.name}} flag">
+          </div>
+          <div class="description">
+            <h3>{{country.name}}</h3>
+            <p><b>Population</b><span>{{country.population}}</span></p>
+            <p><b>Region</b><span>{{country.region}}</span></p>
+            <p><b>Capital</b><span>{{country.capital}}</span></p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+
+  <script src="vue.min.js"></script>
+  <script>
+    const app = new Vue({
+      el: '#application',
+      data: {
+        message: 'Hello',
+        regions: ['africa', 'americas', 'asia', 'europe', 'oceania'],
+        selectedRegion: null,
+        countries_arr: []
+      },
+      mounted: function () {
+        const thisObj = this;
+        this.$nextTick(function () {
+          if (!thisObj.selectedRegion) {
+            thisObj.selectedRegion = thisObj.regions[0];
+          }
+          thisObj.loadByRegion(thisObj.selectedRegion);
+        })
+      },
+      methods: {
+        loadByRegion: function (region) {
+          fetch(`https://restcountries.eu/rest/v2/region/${region}`, {
+            "headers": {
+              "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+            },
+            "method": "GET",
+            "mode":"cors"
+          })
+          .then(response => response.json())
+          .then(data => this.countries_arr = data);
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
