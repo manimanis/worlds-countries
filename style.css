@@ -167,7 +167,7 @@ main nav {
 }
 
 @media screen and (min-width: 1440px) {
-    #countries-cards  {
+    #countries-cards, main nav  {
         width: 1440px;
         margin: 0 auto;
     }

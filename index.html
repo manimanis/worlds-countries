@@ -23,11 +23,15 @@
       <nav>
         <section id="search">
           <label for="search-input">🔍</label>
-          <input type="search" id="search-input" placeholder="Search for a country...">
+          <input type="search" list="countries" id="search-input" placeholder="Search for a country..."
+            v-model="search_text" v-on:keyup.enter="displayDetails(search_text, selectedRegion)">
+          <datalist id="countries">
+            <option v-for="name in countries_names" v-bind:value="name"></option>
+          </datalist>
         </section>
-  
+
         <section id="filter-region">
-          <select name="region" id="region" v-model="selectedRegion">
+          <select name="region" id="region" v-model="selectedRegion" v-on:change="filterByRegion(selectedRegion)">
             <option v-for="region in regions">{{region}}</option>
           </select>
         </section>
@@ -56,9 +60,11 @@
       el: '#application',
       data: {
         message: 'Hello',
-        regions: ['africa', 'americas', 'asia', 'europe', 'oceania'],
-        selectedRegion: null,
-        countries_arr: []
+        regions: ['all', 'africa', 'americas', 'asia', 'europe', 'oceania'],
+        selectedRegion: 'all',
+        countries_arr: [],
+        countries_names: [],
+        search_text: ''
       },
       mounted: function () {
         const thisObj = this;
@@ -66,20 +72,31 @@
           if (!thisObj.selectedRegion) {
             thisObj.selectedRegion = thisObj.regions[0];
           }
-          thisObj.loadByRegion(thisObj.selectedRegion);
+          thisObj.loadAllCountries();
         })
       },
       methods: {
-        loadByRegion: function (region) {
-          fetch(`https://restcountries.eu/rest/v2/region/${region}`, {
+        loadAllCountries: function () {
+          fetch(`https://restcountries.eu/rest/v2/all?fields=name;flag;region;population;capital`, {
             "headers": {
               "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
             },
             "method": "GET",
-            "mode":"cors"
+            "mode": "cors"
           })
-          .then(response => response.json())
-          .then(data => this.countries_arr = data);
+            .then(response => response.json())
+            .then(data => {
+              this.countries_arr = data;
+              this.filterByRegion(this.selectedRegion);
+            });
+        },
+        filterByRegion: function (region) {
+          this.countries_names = this.countries_arr
+            .filter(country => region === 'all' || country.region.toLowerCase() === region)
+            .map(country => country.name);
+        },
+        displayDetails: function (country_name, selectedRegion) {
+          console.log(this.search_text, '-', this.selectedRegion);
         }
       }
     });
