@@ -8,23 +8,23 @@
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="dark-mode">
-  <div id="application">
+<body>
+  <div id="application" v-bind:class="darkMode ? 'dark-mode' : 'light-mode'">
     <header>
       <h3>Where in the World?</h3>
       <div>
         <div class="switch">
           <label for="switch-dark-mode">☾ Dark mode</label>
-          <input type="checkbox" name="" id="switch-dark-mode">
+          <input type="checkbox" id="switch-dark-mode" v-model="darkMode">
         </div>
       </div>
     </header>
-    <main>
+    <main v-if="!selectedCountry" id="home">
       <nav>
         <section id="search">
           <label for="search-input">🔍</label>
           <input type="search" list="countries" id="search-input" placeholder="Search for a country..."
-            v-model="search_text" v-on:keyup.enter="displayDetails(search_text, selectedRegion)">
+            v-model="search_text" v-on:keyup.enter="displayDetails(search_text)">
           <datalist id="countries">
             <option v-for="name in countries_names" v-bind:value="name"></option>
           </datalist>
@@ -38,9 +38,11 @@
       </nav>
 
       <section id="countries-cards">
-        <div class="card" v-for="country in countries_arr">
+        <div class="card" v-for="country in countriesHistory">
           <div class="flag">
-            <img v-bind:src="country.flag" alt="{{country.name}} flag">
+            <a href="#" v-on:click.prevent="displayDetails(country.name)">
+              <img v-bind:src="country.flag" alt="{{country.name}} flag">
+            </a>
           </div>
           <div class="description">
             <h3>{{country.name}}</h3>
@@ -50,6 +52,36 @@
           </div>
         </div>
       </section>
+    </main>
+
+    <main v-if="selectedCountry" id="details">
+      <nav>
+        <button v-on:click="backHome()">&larr; Back</button>
+      </nav>
+      <div class="details-flag">
+        <img v-bind:src="selectedCountry.flag" alt="{{selectedCountry.name}} flag">
+      </div>
+      <div class="details-description">
+        <h3 class="details-title">{{selectedCountry.name}}</h3>
+        <div>
+          <p><b>Native Name</b><span>{{selectedCountry.nativeName}}</span></p>
+          <p><b>Population</b><span>{{selectedCountry.population}}</span></p>
+          <p><b>Region</b><span>{{selectedCountry.region}}</span></p>
+          <p><b>Sub Region</b><span>{{selectedCountry.subregion}}</span></p>
+          <p><b>Capital</b><span>{{selectedCountry.capital}}</span></p>
+        </div>
+        <div>
+          <p><b>Top Level Domain</b><span>{{selectedCountry.topLevelDomain.join(', ')}}</span></p>
+          <p><b>Currencies</b><span>{{selectedCountry.currencies[0].name}}</span></p>
+          <p><b>Languages</b><span>{{selectedCountry.languages.map(l => l.name).join(', ')}}</span></p>
+        </div>
+      </div>
+      <div class="details-border-countries">
+        <p>
+          <b>Border Countries</b>
+          <button v-for="country in selectedCountry.borderCountries" v-on:click="displayDetails(country.name)">{{country.name}}</button>
+        </p>
+      </div>
     </main>
   </div>
 
@@ -64,7 +96,10 @@
         selectedRegion: 'all',
         countries_arr: [],
         countries_names: [],
-        search_text: ''
+        search_text: '',
+        countriesHistory: [],
+        selectedCountry: null,
+        darkMode: false
       },
       mounted: function () {
         const thisObj = this;
@@ -77,7 +112,7 @@
       },
       methods: {
         loadAllCountries: function () {
-          fetch(`https://restcountries.eu/rest/v2/all?fields=name;flag;region;population;capital`, {
+          fetch(`https://restcountries.eu/rest/v2/all?fields=alpha3Code;name;flag;region;population;capital`, {
             "headers": {
               "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
             },
@@ -88,15 +123,38 @@
             .then(data => {
               this.countries_arr = data;
               this.filterByRegion(this.selectedRegion);
+              this.displayDetails(this.countries_arr[0].name);
             });
+        },
+        loadCountry: function (countryName) {
+          fetch(`https://restcountries.eu/rest/v2/name/${encodeURI(countryName)}?fullText=true`, {
+            "headers": {
+              "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+            },
+            "method": "GET",
+            "mode": "cors"
+          })
+            .then(response => response.json())
+            .then(data => {
+              this.selectedCountry = data[0];
+              this.countriesHistory = this.countriesHistory.filter(country => country.name !== countryName);
+              this.countriesHistory = [this.selectedCountry, ...this.countriesHistory];
+              this.selectedCountry.borderCountries = this.selectedCountry.borders.map(code => this.findByCode(code));
+            });
+        },
+        findByCode: function(alpha3Code) {
+          return this.countries_arr.find(country => country.alpha3Code === alpha3Code);
         },
         filterByRegion: function (region) {
           this.countries_names = this.countries_arr
             .filter(country => region === 'all' || country.region.toLowerCase() === region)
             .map(country => country.name);
         },
-        displayDetails: function (country_name, selectedRegion) {
-          console.log(this.search_text, '-', this.selectedRegion);
+        backHome: function () {
+          this.selectedCountry = null;
+        },
+        displayDetails: function (countryName) {
+          this.loadCountry(countryName);
         }
       }
     });

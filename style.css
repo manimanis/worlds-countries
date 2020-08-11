@@ -5,7 +5,7 @@
     --elements-dark: hsl(0, 0%, 100%);
     --text-light: hsl(200, 15%, 8%);
     --elements-light: hsl(0, 0%, 52%);
-    --backgound-light: hsl(0, 0%, 98%);
+    --background-light: hsl(0, 0%, 98%);
 }
 
 body {
@@ -18,12 +18,32 @@ body {
 /* Light mode */
 
 .light-mode {
-    background-color: var(--backgound-light);
+    background-color: var(--background-light);
     color: var(--text-light);
 }
 
 .light-mode header {
-    background-color: var(--alt-elements-light);
+    background-color: var(--elements-dark);
+    border-bottom: 1px solid var(--elements-light);
+}
+
+.light-mode a {
+    text-decoration: none;
+    color: var(--elements-dark);
+}
+
+.light-mode #search, .light-mode #filter-region {
+    background-color: var(--elements-dark);
+    border: 1px solid var(--elements-light);
+}
+
+.light-mode #search input[type="search"], .light-mode #filter-region select {
+    color: var(--text-light);
+}
+
+.light-mode .card {
+    background-color: var(--elements-dark);
+    border: 1px solid var(--elements-light);
 }
 
 /* Dark mode */
@@ -77,7 +97,11 @@ header>div {
     text-align: right;
 }
 
-main nav {
+main {
+    min-height: 100vh;
+}
+
+#home nav {
     display: flex;
     flex-wrap: wrap;
 }
@@ -124,27 +148,53 @@ main nav {
 
 .card {
     margin: 20px 32px;
-    border-radius:10px;
+    border-radius: 10px;
 }
 
-.card .flag img {
+img {
     width: 100%;
+}
+
+button {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 0 3px #333;
 }
 
 .card .description {
     padding: 20px;
 }
 
-.card .description p {
+.description p, .details-description p {
     margin: 5px 0;
 }
 
-.card .description p b {
+.description p b, .details-description p b {
     width: 7rem;
     display: inline-block;
 }
 
+.details-description {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.details-border-countries button {
+    margin: 5px;
+}
+
+#details {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#details nav, #details .details-title, .details-description div {
+    width: 100%;
+}
+
 /* media for desktop */
+
 @media screen and (min-width: 480px) {
     .card {
         margin: 10px;
@@ -157,6 +207,11 @@ main nav {
         margin: 10px;
         width: calc(33.3% - 20px);
     }
+    #details>.details-flag, #details>.details-description {
+        box-sizing: content-box;
+        width: calc(50% - 10px);
+        margin: 5px;
+    }
 }
 
 @media screen and (min-width: 1200px) {
@@ -164,10 +219,14 @@ main nav {
         margin: 10px;
         width: calc(25% - 20px);
     }
+
+    .details-description div {
+        width: calc(50% - 10px);
+    }
 }
 
 @media screen and (min-width: 1440px) {
-    #countries-cards, main nav  {
+    #countries-cards, main nav {
         width: 1440px;
         margin: 0 auto;
     }
