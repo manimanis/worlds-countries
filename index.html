@@ -14,7 +14,7 @@
       <h3>Where in the World?</h3>
       <div>
         <div class="switch">
-          <label for="switch-dark-mode">☾ Dark mode</label>
+          <label for="switch-dark-mode">{{ !darkMode ? '☾ Dark mode' : '💡 Light mode' }}</label>
           <input type="checkbox" id="switch-dark-mode" v-model="darkMode">
         </div>
       </div>
@@ -62,7 +62,9 @@
         <img v-bind:src="selectedCountry.flag" alt="{{selectedCountry.name}} flag">
       </div>
       <div class="details-description">
-        <h3 class="details-title">{{selectedCountry.name}}</h3>
+        <div class="details-title">
+          <h3>{{selectedCountry.name}}</h3>
+        </div>
         <div>
           <p><b>Native Name</b><span>{{selectedCountry.nativeName}}</span></p>
           <p><b>Population</b><span>{{selectedCountry.population}}</span></p>
@@ -123,7 +125,7 @@
             .then(data => {
               this.countries_arr = data;
               this.filterByRegion(this.selectedRegion);
-              this.displayDetails(this.countries_arr[0].name);
+              // this.displayDetails(this.countries_arr[0].name);
             });
         },
         loadCountry: function (countryName) {

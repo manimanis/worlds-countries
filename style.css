@@ -178,6 +178,7 @@ button {
 .details-description {
     display: flex;
     flex-wrap: wrap;
+    align-content: flex-start;
 }
 
 .details-border-countries button {
@@ -187,10 +188,15 @@ button {
 #details {
     display: flex;
     flex-wrap: wrap;
+    margin: 10px;
 }
 
 #details nav, #details .details-title, .details-description div {
     width: 100%;
+}
+
+#details nav {
+    margin: 20px 0;
 }
 
 /* media for desktop */
@@ -212,6 +218,9 @@ button {
         width: calc(50% - 10px);
         margin: 5px;
     }
+    .details-description div {
+        width: calc(50% - 10px);
+    }
 }
 
 @media screen and (min-width: 1200px) {
@@ -219,14 +228,10 @@ button {
         margin: 10px;
         width: calc(25% - 20px);
     }
-
-    .details-description div {
-        width: calc(50% - 10px);
-    }
 }
 
 @media screen and (min-width: 1440px) {
-    #countries-cards, main nav {
+    #countries-cards, main nav, #details {
         width: 1440px;
         margin: 0 auto;
     }
